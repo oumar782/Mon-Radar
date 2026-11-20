@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
-const API_BASE = (import.meta.env.VITE_DEMO_API_URL || '/api/demo').replace(/\/$/, '');
+const API_BASE = (
+  import.meta.env.VITE_DEMO_API_URL
+  || (import.meta.env.PROD ? 'https://backradar.vercel.app/api/demo' : '/api/demo')
+).replace(/\/$/, '');
 const DEMO_SESSION_KEY = 'monradar-demo-session';
 const DEMO_SESSION_DURATION = 15 * 60 * 1000;
 const DEMO_EXPIRED_MESSAGE = 'Cette session de démonstration a expiré. Contactez l’équipe pour obtenir une nouvelle démo.';
