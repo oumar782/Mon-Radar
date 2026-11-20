@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon Radar — Analyse des ventes, des stocks et des tendances</title>
+  <meta name="description" content="Saisissez vos ventes et votre stock, suivez les indicateurs calculés automatiquement et recevez les tendances et anomalies sur WhatsApp." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23070B14' stroke='%2318BA4C' stroke-width='2'/><circle cx='16' cy='16' r='3' fill='%2318BA4C'/><line x1='16' y1='16' x2='26' y2='8' stroke='%2318BA4C' stroke-width='2' stroke-linecap='round'/></svg>" />
+  <style>
+    :root {
+      --bg-primary: #070B14;
+      --bg-secondary: #0C1220;
+      --bg-tertiary: #131B2E;
+      --bg-card: rgba(14, 21, 37, 0.85);
+      --bg-card-hover: rgba(20, 31, 54, 0.95);
+      --border-color: rgba(255, 255, 255, 0.09);
+      --border-light: rgba(255, 255, 255, 0.14);
+      --border-hover: rgba(24, 186, 76, 0.45);
+      --text-primary: #FFFFFF;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --turf-green: #18BA4C;
+      --turf-green-bright: #22C55E;
+      --radar-green: #18BA4C;
+      --radar-green-light: #22C55E;
+      --radar-glow: rgba(24, 186, 76, 0.28);
+      --radar-glow-strong: rgba(24, 186, 76, 0.6);
+      --accent-critical: #EF4444;
+      --accent-critical-bg: rgba(239, 68, 68, 0.12);
+      --accent-critical-border: rgba(239, 68, 68, 0.35);
+      --accent-warning: #F59E0B;
+      --accent-warning-bg: rgba(245, 158, 11, 0.12);
+      --accent-warning-border: rgba(245, 158, 11, 0.35);
+      --accent-success: #18BA4C;
+      --accent-success-bg: rgba(24, 186, 76, 0.12);
+      --accent-success-border: rgba(24, 186, 76, 0.35);
+      --wa-bg: #0B141A;
+      --wa-header: #1F2C34;
+      --wa-bubble-in: #202C33;
+      --wa-bubble-out: #0B5C35;
+      --wa-green: #18BA4C;
+      --wa-text: #E9EDEF;
+      --wa-text-muted: #8696A0;
+      --wa-input-bg: #2A3942;
+      --wa-check-blue: #53BDEB;
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-xl: 30px;
+      --radius-full: 9999px;
+      --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.45);
+      --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-theme="light"] {
+      --bg-primary: #F8FAFC;
+      --bg-secondary: #FFFFFF;
+      --bg-tertiary: #F1F5F9;
+      --bg-card: rgba(255, 255, 255, 0.95);
+      --border-color: rgba(15, 23, 42, 0.08);
+      --border-light: rgba(15, 23, 42, 0.12);
+      --border-hover: rgba(24, 186, 76, 0.5);
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #94A3B8;
+      --radar-green: #18BA4C;
+      --radar-green-light: #22C55E;
+      --radar-glow: rgba(24, 186, 76, 0.22);
+      --wa-bg: #EFEAE2;
+      --wa-header: #F0F2F5;
+      --wa-bubble-in: #FFFFFF;
+      --wa-bubble-out: #D9FDD3;
+      --wa-text: #111B21;
+      --wa-text-muted: #667781;
+      --wa-input-bg: #FFFFFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      transition: background-color var(--transition-base), color var(--transition-base);
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(24, 186, 76, 0.1) 0%, transparent 60%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 48px 48px, 48px 48px;
+    }
+    .container { width: 100%; max-width: 1220px; margin: 0 auto; padding: 0 1.75rem; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(4, 7, 17, 0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+    }
+    [data-theme="light"] .site-header { background: rgba(255, 255, 255, 0.92); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo-brand { display: flex; align-items: center; gap: 0.75rem; font-weight: 800; font-size: 1.25rem; letter-spacing: -0.03em; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .nav-link { font-size: 0.925rem; font-weight: 600; color: var(--text-secondary); transition: color 0.15s; }
+    .nav-link:hover { color: var(--radar-green); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; }
+    .theme-toggle-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--bg-tertiary); border: 1px solid var(--border-color);
+      color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .theme-toggle-btn:hover { color: #fff; border-color: var(--border-hover); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+      padding: 0.85rem 1.85rem; border-radius: var(--radius-full);
+      font-weight: 700; font-size: 0.95rem; transition: all var(--transition-base);
+    }
+    .btn-primary {
+      background: linear-gradient(180deg, #22C55E 0%, #18BA4C 100%);
+      color: #040711; font-weight: 800; box-shadow: 0 4px 25px var(--radar-glow);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 35px var(--radar-glow-strong); }
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.7); color: var(--text-primary); border: 1px solid var(--border-light);
+      backdrop-filter: blur(12px);
+    }
+    .btn-secondary:hover { transform: translateY(-2px); border-color: var(--border-hover); color: #fff; }
+    .btn-sm { padding: 0.5rem 1.15rem; font-size: 0.825rem; }
+    .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--radar-green); position: relative; display: inline-block; }
+    .pulse-dot::after {
+      content: ''; position: absolute; inset: -3px; border-radius: 50%;
+      border: 1.5px solid var(--radar-green); animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
+
+    /* Hero */
+    .hero-section { padding: 6.5rem 0 7rem 0; }
+    .hero-grid { display: grid; grid-template-columns: 1.12fr 0.88fr; align-items: center; gap: 4rem; }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.65rem; padding: 0.45rem 1.1rem;
+      border-radius: var(--radius-full); background: rgba(24, 186, 76, 0.1);
+      border: 1px solid rgba(24, 186, 76, 0.35); font-size: 0.78rem; font-weight: 700;
+      color: var(--radar-green); text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .hero-title { font-size: clamp(2.75rem, 5.5vw, 4.2rem); font-weight: 800; line-height: 1.08; letter-spacing: -0.04em; margin: 1.25rem 0; }
+    .gradient-text { background: linear-gradient(135deg, #34D368 0%, #22C55E 50%, #18BA4C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-subtitle { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.65; margin-bottom: 2rem; max-width: 580px; }
+    .hero-visual { position: relative; display: flex; justify-content: center; align-items: center; min-height: 480px; }
+    
+    /* Radar HUD */
+    .radar-display {
+      width: 410px; height: 410px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(13, 20, 36, 0.98) 0%, rgba(4, 7, 17, 0.99) 100%);
+      border: 1px solid rgba(24, 186, 76, 0.4); box-shadow: 0 0 60px rgba(24, 186, 76, 0.2);
+      position: relative; overflow: hidden;
+    }
+    .radar-hud-label {
+      position: absolute; font-family: var(--font-mono); font-size: 0.65rem;
+      color: rgba(24, 186, 76, 0.6); font-weight: 700; letter-spacing: 0.05em; pointer-events: none;
+    }
+    .radar-circle {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      border-radius: 50%; border: 1px solid rgba(24, 186, 76, 0.18); pointer-events: none;
+    }
+    .radar-crosshair-x { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(24, 186, 76, 0.18); }
+    .radar-crosshair-y { position: absolute; left: 50%; top: 0; height: 100%; width: 1px; background: rgba(24, 186, 76, 0.18); }
+    .radar-sweep {
+      position: absolute; top: 50%; left: 50%; width: 50%; height: 50%; transform-origin: 0% 0%;
+      background: conic-gradient(from 0deg at 0% 0%, rgba(24, 186, 76, 0.55) 0deg, rgba(24, 186, 76, 0.06) 55deg, transparent 65deg);
+      animation: radar-spin 4s linear infinite; pointer-events: none;
+    }
+    @keyframes radar-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .radar-blip { position: absolute; border-radius: 50%; cursor: pointer; z-index: 2; transition: transform 0.2s; }
+    .blip-crit { width: 14px; height: 14px; background: #EF4444; box-shadow: 0 0 16px #EF4444; animation: pulse-ring 1.8s infinite; }
+    .blip-warn { width: 12px; height: 12px; background: #F59E0B; box-shadow: 0 0 14px #F59E0B; }
+    .blip-succ { width: 11px; height: 11px; background: #18BA4C; box-shadow: 0 0 12px #18BA4C; }
+
+    /* Sections Shared */
+    .section-header { text-align: center; max-width: 780px; margin: 0 auto 4rem auto; }
+    .section-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.95rem;
+      border-radius: var(--radius-full); background: rgba(24, 186, 76, 0.08);
+      border: 1px solid rgba(24, 186, 76, 0.3); font-size: 0.775rem; font-weight: 700;
+      color: var(--radar-green); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.25rem;
+    }
+    .section-title { font-size: clamp(2.1rem, 4.2vw, 2.9rem); font-weight: 800; margin-bottom: 0.9rem; letter-spacing: -0.035em; }
+    .section-title .highlight { background: linear-gradient(135deg, #FFFFFF 20%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .section-subtitle { font-size: 1.125rem; color: var(--text-secondary); line-height: 1.65; }
+
+    /* Problem Grid */
+    .problem-section { padding: 6.5rem 0; }
+    .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
+    .problem-card {
+      padding: 2.25rem 2rem; border-radius: var(--radius-xl); background: var(--bg-card);
+      border: 1px solid var(--border-color); box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .problem-card:hover { transform: translateY(-4px); border-color: rgba(239, 68, 68, 0.45); }
+    .problem-stat { font-size: 2.1rem; font-weight: 800; color: var(--accent-critical); font-family: var(--font-mono); letter-spacing: -0.03em; }
+
+    /* How it works */
+    .how-section { padding: 6.5rem 0; background: var(--bg-secondary); }
+    .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.75rem; }
+    .step-card {
+      padding: 2.2rem 1.6rem; border-radius: var(--radius-lg); background: var(--bg-card);
+      border: 1px solid var(--border-color); box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .step-num {
+      width: 38px; height: 38px; border-radius: 50%; background: rgba(24, 186, 76, 0.12);
+      color: var(--radar-green); font-weight: 800; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem; border: 1px solid rgba(24, 186, 76, 0.35); font-family: var(--font-mono);
+    }
+
+    /* Demo Section */
+    .demo-section { padding: 6.5rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
+    .demo-bar {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+      margin-bottom: 2.5rem; padding: 1.25rem 1.75rem; background: var(--bg-card);
+      border-radius: var(--radius-xl); border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .business-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1.25rem;
+      border-radius: var(--radius-full); font-size: 0.875rem; font-weight: 600;
+      background: rgba(15, 23, 42, 0.6); color: var(--text-secondary); border: 1px solid var(--border-color);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .business-pill.active {
+      background: rgba(24, 186, 76, 0.14); color: var(--radar-green); border-color: var(--radar-green);
+      box-shadow: 0 0 20px rgba(24, 186, 76, 0.25); font-weight: 700;
+    }
+    .demo-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 2.25rem; align-items: start; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi-card {
+      padding: 1.15rem 1.1rem; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border-color); box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .kpi-val { font-size: 1.45rem; font-weight: 800; font-family: var(--font-mono); letter-spacing: -0.03em; }
+    .radar-chart-box {
+      display: grid; grid-template-columns: 200px 1fr; gap: 1.5rem; align-items: center;
+      padding: 1.4rem; background: var(--bg-card); border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color); margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .alert-card {
+      padding: 1.25rem 1.4rem; border-radius: var(--radius-md); background: var(--bg-card);
+      border: 1px solid var(--border-color); margin-bottom: 0.85rem; cursor: pointer;
+      border-left: 4px solid var(--radar-green); transition: all 0.15s;
+      box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .alert-card.critical { border-left-color: var(--accent-critical); }
+    .alert-card.warning { border-left-color: var(--accent-warning); }
+    .alert-card:hover { transform: translateX(4px); border-color: var(--border-hover); background: var(--bg-card-hover); }
+
+    /* Phone Mockup */
+    .phone-device {
+      width: 100%; max-width: 380px; height: 700px; background: #000;
+      border-radius: 48px; border: 12px solid #1E293B; margin: 0 auto;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 35px rgba(24, 186, 76, 0.18); display: flex; flex-direction: column;
+      position: sticky; top: 90px; overflow: hidden;
+    }
+    .wa-screen { flex: 1; display: flex; flex-direction: column; background: var(--wa-bg); padding-top: 38px; }
+    .wa-head {
+      background: var(--wa-header); padding: 0.8rem 1rem; display: flex; align-items: center; gap: 0.75rem;
+    }
+    .wa-avatar {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--turf-green);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: #fff;
+    }
+    .wa-body { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .wa-bubble {
+      max-width: 86%; padding: 0.7rem 0.9rem; border-radius: 14px; font-size: 0.825rem;
+      line-height: 1.48; word-break: break-word;
+    }
+    .wa-bubble.inc { align-self: flex-start; background: var(--wa-bubble-in); color: var(--wa-text); border-top-left-radius: 2px; }
+    .wa-bubble.out { align-self: flex-end; background: var(--wa-bubble-out); color: var(--wa-text); border-top-right-radius: 2px; }
+    .wa-input-row { padding: 0.65rem 0.85rem; background: var(--wa-header); display: flex; gap: 0.55rem; }
+    .wa-input {
+      flex: 1; background: var(--wa-input-bg); border: none; border-radius: var(--radius-full);
+      padding: 0.6rem 1.1rem; font-size: 0.825rem; color: var(--wa-text); outline: none;
+    }
+    .wa-btn {
+      width: 38px; height: 38px; border-radius: 50%; background: var(--wa-green);
+      color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+
+    /* Calculator & Pricing */
+    .calc-box {
+      display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 3rem; align-items: center;
+      background: var(--bg-card); border-radius: var(--radius-xl); border: 1px solid var(--border-color); padding: 3rem;
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    .pricing-card {
+      padding: 2.5rem 2rem; border-radius: var(--radius-xl); background: var(--bg-card);
+      border: 1px solid var(--border-color); display: flex; flex-direction: column;
+      box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .pricing-card.featured {
+      border: 2px solid var(--radar-green); transform: scale(1.03); box-shadow: 0 20px 50px rgba(24, 186, 76, 0.25);
+    }
+    .faq-item {
+      border-radius: var(--radius-md); background: var(--bg-card); border: 1px solid var(--border-color);
+      margin-bottom: 0.85rem; overflow: hidden;
+    }
+    .faq-q {
+      width: 100%; padding: 1.35rem 1.6rem; display: flex; justify-content: space-between; align-items: center;
+      font-weight: 700; text-align: left; cursor: pointer; color: var(--text-primary);
+    }
+    .faq-a { padding: 0 1.6rem 1.35rem 1.6rem; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .hero-grid, .demo-grid, .calc-box, .pricing-grid, .problem-grid, .steps-grid { grid-template-columns: 1fr; }
+      .phone-device { position: static; margin-top: 2rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <!-- 1. Header -->
+    <header class="site-header">
+      <div class="container">
+        <div class="header-inner">
+          <a href="#" class="logo-brand">
+            <svg width="34" height="34" viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="18" r="16" stroke="var(--radar-green)" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.6"/>
+              <circle cx="18" cy="18" r="10" stroke="var(--radar-green)" stroke-width="1.5" opacity="0.8"/>
+              <circle cx="18" cy="18" r="4" fill="var(--radar-green)"/>
+              <path d="M18 18L30 10" stroke="var(--radar-green)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="30" cy="10" r="2.5" fill="#EF4444"/>
+            </svg>
+            <span>Mon Radar</span>
+          </a>
+
+          <ul class="nav-links">
+            <li><a href="#how-it-works" class="nav-link">Comment ça marche</a></li>
+            <li><a href="#demo" class="nav-link">Démo interactive</a></li>
+            <li><a href="#packs" class="nav-link">Packs métier</a></li>
+            <li><a href="#calculator" class="nav-link">Calculateur</a></li>
+            <li><a href="#pricing" class="nav-link">Tarifs</a></li>
+            <li><a href="#faq" class="nav-link">FAQ</a></li>
+          </ul>
+
+          <div class="header-actions">
+            <button class="theme-toggle-btn" id="themeToggleBtn" title="Basculer clair/sombre" aria-label="Bascule de thème">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </button>
+            <a href="#demo" class="btn btn-primary btn-sm">Tester la démo</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Hero -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-tag">
+              <span class="pulse-dot"></span>
+              <span>Analyse des ventes, des stocks et des tendances</span>
+            </div>
+            <h1 class="hero-title">
+              Comprends ton activité. <br />
+              <span class="gradient-text">Décide avec tes données.</span>
+            </h1>
+            <p class="hero-subtitle">
+              Saisis ou importe tes ventes et tes stocks : Mon Radar calcule tes indicateurs, révèle les tendances de ton marché et repère les évolutions inhabituelles. Tu reçois sur WhatsApp une synthèse claire pour garder un œil sur ton activité.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <a href="#demo" class="btn btn-primary">Essayer la démo interactive</a>
+              <a href="#how-it-works" class="btn btn-secondary">Voir comment ça marche</a>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="radar-display">
+              <span class="radar-hud-label" style="top: 10px; left: 50%; transform: translateX(-50%);">000°</span>
+              <span class="radar-hud-label" style="bottom: 10px; left: 50%; transform: translateX(-50%);">180°</span>
+              <span class="radar-hud-label" style="right: 10px; top: 50%; transform: translateY(-50%);">090°</span>
+              <span class="radar-hud-label" style="left: 10px; top: 50%; transform: translateY(-50%);">270°</span>
+
+              <div class="radar-circle" style="width: 100px; height: 100px;"></div>
+              <div class="radar-circle" style="width: 200px; height: 200px;"></div>
+              <div class="radar-circle" style="width: 300px; height: 300px;"></div>
+              <div class="radar-circle" style="width: 390px; height: 390px; border-style: dashed;"></div>
+
+              <div class="radar-crosshair-x"></div>
+              <div class="radar-crosshair-y"></div>
+              <div class="radar-sweep"></div>
+
+              <div class="radar-blip blip-crit" style="top: 32%; left: 70%;" title="Rupture imminente (4j)"></div>
+              <div class="radar-blip blip-crit" style="top: 68%; left: 26%;" title="Stock dormant (1 240 €)"></div>
+              <div class="radar-blip blip-warn" style="top: 25%; left: 38%;" title="Ventes en baisse (-27%)"></div>
+              <div class="radar-blip blip-succ" style="top: 72%; left: 68%;" title="Surperformance (+40%)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Le Problème -->
+    <section class="problem-section" id="problem">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Le constat</div>
+          <h2 class="section-title">
+            Vos chiffres racontent l’activité. <br />
+            <span class="highlight">Encore faut-il pouvoir les lire.</span>
+          </h2>
+          <p class="section-subtitle">
+            Ventes et stocks réunis dans une même analyse pour suivre les indicateurs, comprendre les variations et repérer les tendances du marché.
+          </p>
+        </div>
+
+        <div class="problem-grid">
+          <div class="problem-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-critical); letter-spacing: 0.08em; font-family: var(--font-mono);">[PERFORMANCE]</span>
+            </div>
+            <div class="problem-stat">Ventes</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.8rem;">chiffre, panier moyen, évolution</div>
+            <h3 style="margin-bottom: 0.5rem;">Une activité difficile à lire</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Les chiffres sont dispersés entre la caisse, les fichiers et les notes. Sans vue d’ensemble, il est difficile de savoir ce qui progresse ou ralentit.</p>
+          </div>
+
+          <div class="problem-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-critical); letter-spacing: 0.08em; font-family: var(--font-mono);">[NIVEAUX DE STOCK]</span>
+            </div>
+            <div class="problem-stat">Stock</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.8rem;">quantités, valeur, rythme de rotation</div>
+            <h3 style="margin-bottom: 0.5rem;">Des niveaux difficiles à interpréter</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Sans rapprochement avec les ventes, les niveaux de stock sont difficiles à interpréter et les changements de rythme passent inaperçus.</p>
+          </div>
+
+          <div class="problem-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-critical); letter-spacing: 0.08em; font-family: var(--font-mono);">[ÉVOLUTIONS]</span>
+            </div>
+            <div class="problem-stat">Tendances</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.8rem;">croissances et variations inhabituelles</div>
+            <h3 style="margin-bottom: 0.5rem;">Les signaux se perdent dans les données</h3>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Comparer les périodes et repérer une variation atypique à travers des centaines de lignes prend du temps.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Comment ça marche -->
+    <section class="how-section" id="how-it-works">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Processus</div>
+          <h2 class="section-title">De tes données à une vision claire.</h2>
+          <p class="section-subtitle">Saisis tes ventes et ton stock, puis retrouve les indicateurs calculés automatiquement.</p>
+        </div>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <h4>Saisie ou import</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Ajoute les ventes et les niveaux de stock manuellement ou importe un fichier Excel ou CSV.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <h4>Données structurées</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Mon Radar organise les dates, produits, quantités et montants.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <h4>Calculs et tendances</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Suis les évolutions des ventes, la rotation du stock, les croissances et les variations inhabituelles.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <h4>Synthèse WhatsApp</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Retrouve les tendances à suivre et les anomalies détectées directement sur WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Démo Interactive -->
+    <section class="demo-section" id="demo">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Démonstration Interactive</div>
+          <h2 class="section-title">
+            Testez l'interface en direct. <br />
+            <span class="highlight">Compare les ventes, le stock et les tendances.</span>
+          </h2>
+          <p class="section-subtitle">Explore les indicateurs calculés et consulte un exemple de synthèse WhatsApp.</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="demo-bar">
+          <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+            <button class="business-pill active" onclick="switchCommerce('epicerie')">Épicerie & Alimentation</button>
+            <button class="business-pill" onclick="switchCommerce('mode')">Boutique de Mode</button>
+            <button class="business-pill" onclick="switchCommerce('resto')">Restaurant & Bar</button>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="simulateImport()">Simuler l’import des données</button>
+        </div>
+
+        <!-- Grid -->
+        <div class="demo-grid">
+          <!-- Left: Dashboard -->
+          <div>
+            <div class="kpi-grid" id="kpiContainer"></div>
+
+            <div class="radar-chart-box">
+              <div style="text-align: center;">
+                <div class="radar-display" style="width: 155px; height: 155px; margin: 0 auto;">
+                  <div class="radar-sweep"></div>
+                  <div class="radar-blip blip-crit" style="top: 32%; left: 68%;"></div>
+                  <div class="radar-blip blip-warn" style="top: 65%; left: 32%;"></div>
+                </div>
+                <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.6rem; font-weight: 700; font-family: var(--font-mono);">ANALYSE ACTIVE</span>
+              </div>
+              <div id="chartContainer" style="width: 100%;">
+                <!-- Dynamic SVG Curve with Real French Dates Injected via JS -->
+              </div>
+            </div>
+
+            <div id="alertsContainer"></div>
+          </div>
+
+          <!-- Right: WhatsApp Phone -->
+          <div>
+            <div class="phone-device">
+              <div class="wa-screen">
+                <div class="wa-head">
+                  <div class="wa-avatar">MR</div>
+                  <div>
+                    <h5 style="color: var(--wa-text); font-size: 0.925rem;">Mon Radar</h5>
+                    <span style="font-size: 0.72rem; color: var(--wa-green); font-weight: 600;">— En ligne</span>
+                  </div>
+                </div>
+                <div class="wa-body" id="waChatBody"></div>
+                <div style="padding: 0.5rem 0.75rem; display: flex; gap: 0.4rem; overflow-x: auto; background: rgba(0,0,0,0.3);">
+                  <button class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;" onclick="sendQuick('Quelles commandes passer ?')">Quelles commandes passer ?</button>
+                  <button class="btn btn-secondary btn-sm" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;" onclick="sendQuick('Meilleures ventes ?')">Meilleures ventes ?</button>
+                </div>
+                <form class="wa-input-row" onsubmit="handleChatSubmit(event)">
+                  <input type="text" id="waInput" class="wa-input" placeholder="Poser une question de gestion..." />
+                  <button type="submit" class="wa-btn">Envoyer</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Packs Métiers -->
+    <section class="problem-section" id="packs" style="background: var(--bg-secondary);">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Spécialisation Sectorielle</div>
+          <h2 class="section-title">Des analyses adaptées à votre activité.</h2>
+          <p class="section-subtitle">Compare ventes, niveaux de stock et évolutions selon les indicateurs utiles à ton secteur.</p>
+        </div>
+        <div class="problem-grid">
+          <div class="problem-card">
+            <h3>Épicerie et Primeur</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Évolution des ventes par produit, rotation des stocks frais et variations selon les périodes.</p>
+          </div>
+          <div class="problem-card">
+            <h3>Mode et Prêt-à-porter</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Comparaison des ventes par modèle et taille, évolution des collections et valeur du stock.</p>
+          </div>
+          <div class="problem-card">
+            <h3>Restaurant et Bar</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Analyse des ventes par plat, suivi des quantités en stock et évolution du ticket moyen.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Calculateur de valeur -->
+    <section class="problem-section" id="calculator">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Indicateurs d’activité</div>
+          <h2 class="section-title">Ventes et stock, mis en perspective.</h2>
+          <p class="section-subtitle">Ajuste les valeurs pour voir les indicateurs calculés automatiquement.</p>
+        </div>
+
+        <div class="calc-box">
+          <div>
+            <label style="font-weight: 700; display: block; margin-bottom: 0.5rem;">
+              Ventes mensuelles : <span id="caVal" style="color: var(--radar-green); font-family: var(--font-mono); font-size: 1.25rem;">25 000 €</span>
+            </label>
+            <input id="salesInput" type="range" min="5000" max="100000" step="1000" value="25000" style="width: 100%; accent-color: var(--radar-green);" oninput="updateCalc(this.value, document.getElementById('stockInput').value)" />
+
+            <label style="font-weight: 700; display: block; margin: 1.5rem 0 0.5rem;">
+              Valeur du stock actuel : <span id="stockVal" style="color: var(--radar-green); font-family: var(--font-mono); font-size: 1.25rem;">12 000 €</span>
+            </label>
+            <input id="stockInput" type="range" min="1000" max="100000" step="1000" value="12000" style="width: 100%; accent-color: var(--radar-green);" oninput="updateCalc(document.getElementById('salesInput').value, this.value)" />
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 1rem;">Estimation indicative : ventes et stock doivent être saisis sur une base de valorisation comparable.</p>
+          </div>
+
+          <div style="background: rgba(24, 186, 76, 0.1); border: 1px solid var(--radar-green); border-radius: var(--radius-lg); padding: 2.2rem; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+            <span style="font-size: 0.85rem; text-transform: uppercase; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.05em;">Ratio mensuel ventes / stock :</span>
+            <div id="savingsResult" style="font-size: 3.2rem; font-weight: 800; color: var(--radar-green); font-family: var(--font-mono); margin: 0.5rem 0; letter-spacing: -0.04em;">
+              2,1×
+            </div>
+            <span id="coverageResult" style="font-size: 0.9rem; color: var(--text-secondary);">Couverture théorique : environ 14 jours</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Tarifs -->
+    <section class="problem-section" id="pricing" style="background: var(--bg-secondary);">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-pill">Tarification Transparente</div>
+          <h2 class="section-title">Choisis les indicateurs adaptés à ton activité.</h2>
+          <p class="section-subtitle">Des formules pour analyser les ventes, les stocks et les tendances de ton commerce.</p>
+        </div>
+
+        <div class="pricing-grid">
+          <div class="pricing-card">
+            <h3>Starter</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Pour commerces de proximité</p>
+            <div style="font-size: 2.6rem; font-weight: 800; margin: 1.5rem 0; font-family: var(--font-mono);">19 € <span style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--font-sans);">/ mois HT</span></div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; flex: 1;">
+              <li>— Saisie et import des ventes et stocks</li>
+              <li>— Indicateurs et tendances de ventes</li>
+              <li>— Suivi de la valeur du stock</li>
+              <li>— Synthèse WhatsApp</li>
+            </ul>
+            <a href="#cta" class="btn btn-secondary" style="margin-top: 2rem;">Sélectionner l'offre</a>
+          </div>
+
+          <div class="pricing-card featured">
+            <div style="color: var(--radar-green); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;">Le plus choisi — Recommandé</div>
+            <h3 style="margin-top: 0.35rem;">Pro</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Analyses détaillées pour suivre l’activité</p>
+            <div style="font-size: 2.6rem; font-weight: 800; margin: 1.5rem 0; font-family: var(--font-mono); color: #fff;">49 € <span style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--font-sans);">/ mois HT</span></div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; flex: 1;">
+              <li>— Références illimitées</li>
+              <li>— Comparaison des périodes et tendances</li>
+              <li>— Alertes WhatsApp sur les anomalies</li>
+              <li>— Analyses par produit et catégorie</li>
+              <li>— Indicateurs adaptés au secteur</li>
+            </ul>
+            <a href="#cta" class="btn btn-primary" style="margin-top: 2rem;">Démarrer l'essai gratuit</a>
+          </div>
+
+          <div class="pricing-card">
+            <h3>Multi-magasins</h3>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Franchises et réseaux de boutiques</p>
+            <div style="font-size: 2.2rem; font-weight: 800; margin: 1.5rem 0; font-family: var(--font-mono);">Sur devis</div>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; flex: 1;">
+              <li>— Console multi-boutiques consolidée</li>
+              <li>— Comparaison des ventes et stocks par site</li>
+              <li>— Tendances globales et par magasin</li>
+              <li>— Synthèses WhatsApp par responsable</li>
+            </ul>
+            <a href="#cta" class="btn btn-secondary" style="margin-top: 2rem;">Contacter l'équipe</a>
+          </div>
+        </div>
+
+        <p style="text-align: center; color: var(--radar-green); font-weight: 700; margin-top: 3.5rem; font-size: 1.05rem;">
+          « Des données bien lues aident à prendre de meilleures décisions. »
+        </p>
+      </div>
+    </section>
+
+    <!-- 9. FAQ -->
+    <section class="problem-section" id="faq">
+      <div class="container" style="max-width: 840px;">
+        <div class="section-header">
+          <div class="section-pill">Foire aux Questions</div>
+          <h2 class="section-title">Questions fréquentes.</h2>
+          <p class="section-subtitle">Les réponses pour saisir tes données et suivre ton activité.</p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Quelles données puis-je analyser ? <span>+</span></div>
+          <div class="faq-a">Saisis ou importe tes ventes et tes niveaux de stock. Mon Radar les organise par date et par produit pour calculer des indicateurs de suivi.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Quels calculs sont faits automatiquement ? <span>+</span></div>
+          <div class="faq-a">Suis le chiffre d’affaires, les variations de ventes, les tendances par produit et la rotation du stock à partir des données fournies.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Comment les tendances et les anomalies sont-elles repérées ? <span>+</span></div>
+          <div class="faq-a">Mon Radar compare les ventes et les stocks entre différentes périodes. Une croissance, un recul ou une variation inhabituelle ressort dans les indicateurs.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Comment recevoir les tendances sur WhatsApp ? <span>+</span></div>
+          <div class="faq-a">Les synthèses mettent en avant les évolutions importantes et les anomalies détectées pour garder un œil sur les données.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Puis-je utiliser mes fichiers de caisse et de stock ? <span>+</span></div>
+          <div class="faq-a">La démo présente l’import de fichiers Excel et CSV. Les colonnes de ventes, dates, produits et quantités servent de base aux analyses.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. CTA Final -->
+    <section class="problem-section" id="cta" style="background: radial-gradient(circle at center, rgba(24, 186, 76, 0.16), var(--bg-primary));">
+      <div class="container" style="text-align: center; max-width: 700px;">
+        <h2 style="font-size: 2.6rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.035em;">Donnez du sens à vos chiffres.</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem;">Suivez vos ventes, votre stock et vos tendances dans une même analyse.</p>
+        <form onsubmit="handleLeadSubmit(event)" style="display: flex; gap: 0.65rem; flex-wrap: wrap; justify-content: center;">
+          <input type="email" required placeholder="Votre adresse email professionnelle" style="padding: 0.9rem 1.4rem; border-radius: 9999px; border: 1px solid var(--border-light); background: rgba(13, 20, 36, 0.9); color: #fff; min-width: 280px; font-size: 0.95rem; outline: none;" />
+          <button type="submit" class="btn btn-primary">Demander un accès prioritaire</button>
+        </form>
+        <div id="leadFeedback" style="display: none; margin-top: 1.25rem; color: var(--radar-green); font-weight: 700;">
+          Demande enregistrée. Votre invitation WhatsApp vous sera adressée sous peu.
+        </div>
+      </div>
+    </section>
+
+    <footer style="padding: 3.5rem 0; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+      © 2026 Mon Radar SAS — Analyse des ventes, des stocks et des tendances.
+    </footer>
+  </div>
+
+  <script>
+    const DATA = {
+      epicerie: {
+        kpis: [
+          { l: 'Ventes du jour', v: '1 845 €', t: '+12%' },
+          { l: 'Évolution semaine', v: '+8%', t: 'vs semaine passée' },
+          { l: 'Valeur du stock', v: '18 420 €', t: 'à date' },
+          { l: 'Variations à suivre', v: '2 signaux', t: 'ventes & stock' }
+        ],
+        alerts: [
+          { title: '[CRITIQUE] Rupture dans 4 jours : Lait demi-écrémé', desc: 'Consommation : 38 u./jour (reste 150). Délai fournisseur moyen : 5 jours.', wa: '[CRITIQUE - RUPTURE] Le lait demi-écrémé s\'écoule à 38 u/jour. Il reste 150 unités en rayon. Votre fournisseur livre en 5 jours. Sans commande validée ce jour, le stock sera épuisé jeudi.' },
+          { title: '[VIGILANCE] Recul de 27% sur le rayon Boissons', desc: 'Indisponibilité de la référence phare constatée sur 48h.', wa: '[VIGILANCE] Les ventes Boissons ont baissé de 27% suite à la rupture temporaire sur l\'eau minérale 1L mardi et mercredi.' },
+          { title: '[TRÉSORERIE] 1 240 € de stock dormant (60 jours)', desc: '12 références d\'épicerie fine n\'ont enregistré aucun mouvement.', wa: '[STOCK DORMANT] 12 références bloquent 1 240 € de trésorerie depuis 60 jours. Recommandation : activer une opération de déstockage ce week-end.' }
+        ],
+        msg: "Bonjour Marc. Analyse de votre activité :\n• Ventes en hausse de 8% cette semaine\n• Huile d'olive bio : progression de 40%\n• Rayon Boissons : recul inhabituel de 27%\n• Valeur du stock saisi : 18 420 €\n\nSouhaitez-vous consulter le détail d'une tendance ?"
+      },
+      mode: {
+        kpis: [
+          { l: 'Ventes du jour', v: '2 410 €', t: '+8%' },
+          { l: 'Panier moyen', v: '88,50 €', t: '+6%' },
+          { l: 'Valeur du stock', v: '36 800 €', t: 'à date' },
+          { l: 'Tendances repérées', v: '4 modèles', t: 'en évolution' }
+        ],
+        alerts: [
+          { title: '[CRITIQUE] Rupture taille 38 : Robe Chemise', desc: '9 essayages sans achat hier en raison de tailles manquantes.', wa: '[CRITIQUE - RUPTURE TAILLE] Rupture sur la taille 38 de la Robe Chemise. Neuf clientes l\'ont cherchée hier sans achat. Manque à gagner estimé : 720 €.' },
+          { title: '[TRÉSORERIE] 3 850 € immobilisés en collection passée', desc: '42 pièces automne/hiver occupent 15% de la réserve.', wa: '[STOCK DORMANT] 42 pièces hiver bloquent 3 850 € de trésorerie. Action conseillée : organiser des ventes privées dédiées.' }
+        ],
+        msg: "Bonjour Sarah. Analyse de votre boutique :\n• Ventes en hausse de 8% cette semaine\n• Panier moyen en progression de 6%\n• Veste Kimono : ventes multipliées par 2,5\n• Valeur du stock saisi : 36 800 €"
+      },
+      resto: {
+        kpis: [
+          { l: 'Couverts prévus', v: '142 serv.', t: '+15%' },
+          { l: 'Ticket moyen', v: '32,80 €', t: '+4%' },
+          { l: 'Valeur du stock', v: '4 280 €', t: 'à date' },
+          { l: 'Variations à suivre', v: '2 signaux', t: 'ventes & stock' }
+        ],
+        alerts: [
+          { title: '[CRITIQUE] Rupture viande 2nd service ce soir', desc: 'Stock résiduel : 18 entrecôtes (besoin moyen : 42 portions).', wa: '[CRITIQUE - SERVICE DU SOIR] Il ne reste que 18 entrecôtes pour ce soir alors que la moyenne du vendredi s\'élève à 42 couverts. Livraison d\'appoint requise avant 18h.' },
+          { title: '[PERTE DLC] 14 filets de Bar à valoriser', desc: 'Date limite fixée à demain soir (valeur d\'achat : 210 €).', wa: '[GESTION DES PERTES] 14 portions de Bar à sortir avant demain soir. Passer en suggestion du chef ce midi pour préserver 336 € de chiffre d\'affaires.' }
+        ],
+        msg: "Bonjour Julien. Analyse de votre restaurant :\n• Ventes en hausse de 11% cette semaine\n• Ticket moyen en progression de 4%\n• Service du samedi sous la tendance habituelle\n• Valeur du stock saisi : 4 280 €",
+        sales: [1650, 1720, 1840, 1920, 2850, 3100, 2400],
+        anomalyIdx: 2,
+        anomalyTxt: 'Rupture Viande 2nd service (-28%)'
+      }
+    };
+
+    DATA.epicerie.sales = [1420, 1530, 980, 1610, 2150, 2480, 1845];
+    DATA.epicerie.anomalyIdx = 2;
+    DATA.epicerie.anomalyTxt = 'Rupture Lait & Boissons (-32%)';
+
+    DATA.mode.sales = [950, 1100, 1850, 820, 2600, 3950, 1200];
+    DATA.mode.anomalyIdx = 3;
+    DATA.mode.anomalyTxt = 'Rupture Tailles 38 & 40 (-37%)';
+
+    let curKey = 'epicerie';
+
+    function get7RealDays() {
+      const days = [];
+      const now = new Date();
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const dayNum = d.getDate();
+        const wk = d.toLocaleDateString('fr-FR', { weekday: 'short' });
+        let lbl = `${wk.charAt(0).toUpperCase() + wk.slice(1)} ${dayNum}`;
+        if (i === 0) lbl = 'Auj.';
+        else if (i === 1) lbl = 'Hier';
+        days.push({
+          label: lbl,
+          full: d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+        });
+      }
+      return days;
+    }
+
+    function renderDemo() {
+      const c = DATA[curKey];
+      const kpiContainer = document.getElementById('kpiContainer');
+      const alertsContainer = document.getElementById('alertsContainer');
+      const waChatBody = document.getElementById('waChatBody');
+      const chartContainer = document.getElementById('chartContainer');
+
+      if (kpiContainer) {
+        kpiContainer.innerHTML = c.kpis.map(k => `
+          <div class="kpi-card">
+            <div style="font-size: 0.725rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${k.l}</div>
+            <div class="kpi-val">${k.v}</div>
+            <div style="font-size: 0.75rem; color: var(--radar-green); font-weight: 700;">${k.t}</div>
+          </div>
+        `).join('');
+      }
+
+      if (chartContainer) {
+        const days = get7RealDays();
+        const s = c.sales || [1420, 1530, 980, 1610, 2150, 2480, 1845];
+        const max = Math.max(...s) * 1.15;
+        const w = 340, h = 90, pL = 36, pR = 14, pT = 12, pB = 22;
+        const pw = w - pL - pR, ph = h - pT - pB;
+        const pts = s.map((val, i) => ({
+          x: pL + (i / (s.length - 1)) * pw,
+          y: pT + ph - (val / max) * ph,
+          val: val,
+          day: days[i]
+        }));
+        
+        let pathD = `M ${pts[0].x} ${pts[0].y}`;
+        for (let i = 0; i < pts.length - 1; i++) {
+          const p1 = pts[i], p2 = pts[i+1];
+          const cx = (p1.x + p2.x) / 2;
+          pathD += ` C ${cx} ${p1.y}, ${cx} ${p2.y}, ${p2.x} ${p2.y}`;
+        }
+        const areaD = `${pathD} L ${pts[pts.length-1].x} ${pT+ph} L ${pts[0].x} ${pT+ph} Z`;
+
+        chartContainer.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem;">
+            <div>
+              <h4 style="font-size: 0.925rem; font-weight: 800; color: #fff; margin: 0;">Ventes & flux réel</h4>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">7 derniers jours calendaires synchronisés</span>
+            </div>
+            <span style="font-size: 0.72rem; font-weight: 800; color: #EF4444; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.2rem 0.55rem; border-radius: 9999px;">
+              ${c.anomalyTxt || 'Variation à suivre'}
+            </span>
+          </div>
+          <svg viewBox="0 0 ${w} ${h}" style="width: 100%; height: 95px; display: block; overflow: visible;">
+            <defs>
+              <linearGradient id="chartGradNative" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#18BA4C" stop-opacity="0.32"/>
+                <stop offset="100%" stop-color="#18BA4C" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <line x1="${pL}" y1="${pT + ph * 0.25}" x2="${w - pR}" y2="${pT + ph * 0.25}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <line x1="${pL}" y1="${pT + ph * 0.75}" x2="${w - pR}" y2="${pT + ph * 0.75}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <path d="${areaD}" fill="url(#chartGradNative)"/>
+            <path d="${pathD}" fill="none" stroke="var(--radar-green)" stroke-width="2.5" stroke-linecap="round"/>
+            ${pts.map((pt, idx) => {
+              const isAnom = idx === c.anomalyIdx;
+              return `
+                <g>
+                  ${isAnom ? `<circle cx="${pt.x}" cy="${pt.y}" r="8" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="2 2" opacity="0.9"/>` : ''}
+                  <circle cx="${pt.x}" cy="${pt.y}" r="${isAnom ? 5 : 3.5}" fill="${isAnom ? '#EF4444' : 'var(--radar-green)'}" stroke="#070B14" stroke-width="2">
+                    <title>${pt.day.full} : ${pt.val.toLocaleString('fr-FR')} €</title>
+                  </circle>
+                  <text x="${pt.x}" y="${h - 4}" text-anchor="middle" font-size="8.5" fill="var(--text-muted)" font-weight="600" font-family="var(--font-mono)">${pt.day.label}</text>
+                </g>
+              `;
+            }).join('')}
+          </svg>
+        `;
+      }
+
+      if (kpiContainer) {
+        kpiContainer.innerHTML = c.kpis.map(k => `
+          <div class="kpi-card">
+            <div style="font-size: 0.725rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">${k.l}</div>
+            <div class="kpi-val">${k.v}</div>
+            <div style="font-size: 0.75rem; color: var(--radar-green); font-weight: 700;">${k.t}</div>
+          </div>
+        `).join('');
+      }
+
+      if (alertsContainer) {
+        alertsContainer.innerHTML = c.alerts.map((a, i) => `
+          <div class="alert-card ${a.title.includes('CRITIQUE') ? 'critical' : 'warning'}" onclick="clickAlert(${i})">
+            <div style="font-weight: 700; font-size: 0.95rem;">${a.title}</div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0.35rem 0;">${a.desc}</p>
+            <span style="font-size: 0.75rem; color: var(--radar-green); font-weight: 700;">Transmettre sur WhatsApp</span>
+          </div>
+        `).join('');
+      }
+
+      if (waChatBody) {
+        waChatBody.innerHTML = `
+          <div class="wa-bubble inc">
+            <div style="white-space: pre-line;">${c.msg}</div>
+            <div style="font-size: 0.65rem; color: var(--wa-text-muted); text-align: right; margin-top: 4px;">08:02</div>
+          </div>
+        `;
+      }
+    }
+
+    function switchCommerce(key) {
+      curKey = key;
+      document.querySelectorAll('.business-pill').forEach(b => b.classList.remove('active'));
+      if (window.event && window.event.target) {
+        window.event.target.classList.add('active');
+      }
+      renderDemo();
+    }
+
+    function clickAlert(idx) {
+      const a = DATA[curKey].alerts[idx];
+      const chat = document.getElementById('waChatBody');
+      if (!chat) return;
+      chat.innerHTML += `
+        <div class="wa-bubble out">
+          <div>Détail de l'alerte : "${a.title}"</div>
+          <div style="font-size: 0.65rem; color: var(--wa-text-muted); text-align: right;">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} ✓✓</div>
+        </div>
+      `;
+      setTimeout(() => {
+        chat.innerHTML += `
+          <div class="wa-bubble inc">
+            <div style="white-space: pre-line;">${a.wa}</div>
+            <div style="font-size: 0.65rem; color: var(--wa-text-muted); text-align: right;">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+      }, 500);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function sendQuick(q) {
+      const chat = document.getElementById('waChatBody');
+      if (!chat) return;
+      chat.innerHTML += `
+        <div class="wa-bubble out">
+          <div>${q}</div>
+          <div style="font-size: 0.65rem; color: var(--wa-text-muted); text-align: right;">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} ✓✓</div>
+        </div>
+      `;
+      setTimeout(() => {
+        let resp = "Commandes prioritaires à passer ce matin : Lait demi-écrémé (120 unités), Café Colombie (40 unités), Beurre doux (50 unités). Total estimé : 485 € HT.";
+        if (q.includes('ventes') || q.includes('Meilleures')) {
+          resp = "Rapport des ventes hebdomadaires : 1. Baguette Tradition (588 €), 2. Huile d'olive bio (+40%), 3. Œufs plein air (784 €).";
+        }
+        chat.innerHTML += `
+          <div class="wa-bubble inc">
+            <div style="white-space: pre-line;">${resp}</div>
+            <div style="font-size: 0.65rem; color: var(--wa-text-muted); text-align: right;">${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+          </div>
+        `;
+        chat.scrollTop = chat.scrollHeight;
+      }, 600);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('waInput');
+      if (!input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      sendQuick(val);
+    }
+
+    function simulateImport() {
+      alert("Simulation d'analyse :\n1. Lecture des ventes et du stock... Validé\n2. Calcul des indicateurs... Validé\n3. Tendances et alertes WhatsApp prêtes.");
+    }
+
+    function updateCalc(val, stockValue = 12000) {
+      const caVal = document.getElementById('caVal');
+      const stockVal = document.getElementById('stockVal');
+      const savingsResult = document.getElementById('savingsResult');
+      const coverageResult = document.getElementById('coverageResult');
+      const sales = Number(val);
+      const stock = Number(stockValue);
+      if (caVal) caVal.innerText = Number(val).toLocaleString('fr-FR') + ' €';
+      if (stockVal) stockVal.innerText = stock.toLocaleString('fr-FR') + ' €';
+      if (savingsResult) savingsResult.innerText = (sales / stock).toFixed(1).replace('.', ',') + '×';
+      if (coverageResult) coverageResult.innerText = 'Couverture théorique : environ ' + Math.round(stock / (sales / 30)) + ' jours';
+    }
+
+    function toggleFaq(el) {
+      const a = el.nextElementSibling;
+      if (a) a.style.display = a.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function handleLeadSubmit(e) {
+      e.preventDefault();
+      const fb = document.getElementById('leadFeedback');
+      if (fb) fb.style.display = 'block';
+    }
+
+    const tBtn = document.getElementById('themeToggleBtn');
+    if (tBtn) {
+      tBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme');
+        document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+      });
+    }
+
+    renderDemo();
+  </script>
+</body>
+</html>

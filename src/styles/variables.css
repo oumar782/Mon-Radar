@@ -1,0 +1,126 @@
+:root {
+  /* Dark Theme (Dominant Obsidian & Turf Pitch Green) */
+  --bg-primary: #070B14;
+  --bg-secondary: #0C1220;
+  --bg-tertiary: #131B2E;
+  --bg-card: rgba(14, 21, 37, 0.78);
+  --bg-card-hover: rgba(20, 31, 54, 0.9);
+  --bg-glass: rgba(12, 18, 32, 0.8);
+  
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-light: rgba(255, 255, 255, 0.14);
+  --border-hover: rgba(24, 186, 76, 0.45);
+  --border-active: rgba(24, 186, 76, 0.8);
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-inverse: #070B14;
+
+  /* Synthetic Turf Green (Vert Gazon Synthétique vibrant & lisible) */
+  --turf-green: #18BA4C;
+  --turf-green-light: #34D368;
+  --turf-green-bright: #22C55E;
+  --turf-green-dark: #108A37;
+  --turf-glow: rgba(24, 186, 76, 0.28);
+  --turf-glow-strong: rgba(24, 186, 76, 0.6);
+
+  /* Aliases for radar */
+  --radar-green: var(--turf-green);
+  --radar-green-light: var(--turf-green-light);
+  --radar-green-dark: var(--turf-green-dark);
+  --radar-glow: var(--turf-glow);
+  --radar-glow-strong: var(--turf-glow-strong);
+
+  /* Unified Status System */
+  --accent-critical: #EF4444;
+  --accent-critical-bg: rgba(239, 68, 68, 0.12);
+  --accent-critical-border: rgba(239, 68, 68, 0.35);
+
+  --accent-warning: #F59E0B;
+  --accent-warning-bg: rgba(245, 158, 11, 0.12);
+  --accent-warning-border: rgba(245, 158, 11, 0.35);
+
+  --accent-success: #18BA4C;
+  --accent-success-bg: rgba(24, 186, 76, 0.12);
+  --accent-success-border: rgba(24, 186, 76, 0.35);
+
+  --accent-info: #38BDF8;
+  --accent-info-bg: rgba(56, 189, 248, 0.12);
+
+  /* WhatsApp Harmonized Colors */
+  --wa-bg: #0B141A;
+  --wa-header: #1F2C34;
+  --wa-bubble-in: #202C33;
+  --wa-bubble-out: #0B5C35;
+  --wa-green: #18BA4C;
+  --wa-text: #E9EDEF;
+  --wa-text-muted: #8696A0;
+  --wa-input-bg: #2A3942;
+  --wa-check-blue: #53BDEB;
+
+  /* Typography & Geometry */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 45px var(--turf-glow);
+
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-slow: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  --container-max: 1220px;
+}
+
+[data-theme="light"] {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F1F5F9;
+  --bg-card: rgba(255, 255, 255, 0.96);
+  --bg-card-hover: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.9);
+
+  --border-color: rgba(15, 23, 42, 0.1);
+  --border-light: rgba(15, 23, 42, 0.14);
+  --border-hover: rgba(24, 186, 76, 0.5);
+  --border-active: rgba(24, 186, 76, 0.85);
+
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  --turf-green: #108A37;
+  --turf-green-light: #16A34A;
+  --turf-green-dark: #0A5A23;
+  --turf-glow: rgba(22, 163, 74, 0.2);
+  --turf-glow-strong: rgba(22, 163, 74, 0.4);
+
+  --radar-green: var(--turf-green);
+  --radar-green-light: var(--turf-green-light);
+  --radar-green-dark: var(--turf-green-dark);
+  --radar-glow: var(--turf-glow);
+  --radar-glow-strong: var(--turf-glow-strong);
+
+  --wa-bg: #EFEAE2;
+  --wa-header: #F0F2F5;
+  --wa-bubble-in: #FFFFFF;
+  --wa-bubble-out: #DCF8C6;
+  --wa-text: #111B21;
+  --wa-text-muted: #667781;
+  --wa-input-bg: #FFFFFF;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
